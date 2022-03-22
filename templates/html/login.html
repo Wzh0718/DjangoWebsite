@@ -1,0 +1,107 @@
+{#<!DOCTYPE html>#}
+    {% load static %}
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+        <script src="{% static 'js/echarts.js' %}"></script>
+    <link rel="shortcut icon" href="{% static  'photo/bitbug_favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'login.css' %}">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=2.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+</head>
+{#author: Wangzehang Liyuanchi Huanyunbo#}
+{#date: 2022-03-19 ~ 2022-03-21#}
+{#info: login html #}
+<script type="text/javascript">
+
+    var tiaozhuan = function () {
+        document.location.href = 'regist';
+    }
+
+    {% for message in messages %}
+        alert('{{ message }}');
+    {% endfor %}
+
+
+</script>
+
+<body>
+<div id="icon" style="width: 600px;height: 500px;margin-right: 20px">
+    <script type="text/javascript">
+        var myChart = echarts.init(document.getElementById('icon'));
+    option = {
+  graphic: {
+    elements: [
+      {
+        type: 'text',
+        left: 'center',
+        top: 'center',
+        style: {
+          text:  'Shares model',
+          fontSize: 80,
+          fontWeight: 'bold',
+          lineDash: [0, 200],
+          lineDashOffset: 0,
+          fill: 'transparent',
+          stroke: '#000',
+          lineWidth: 1
+        },
+        keyframeAnimation: {
+          duration: 3000,
+          loop: true,
+          keyframes: [
+            {
+              percent: 0.7,
+              style: {
+                fill: 'transparent',
+                lineDashOffset: 200,
+                lineDash: [200, 0]
+              }
+            },
+            {
+              // Stop for a while.
+              percent: 0.8,
+              style: {
+                fill: 'transparent'
+              }
+            },
+            {
+              percent: 1,
+              style: {
+                fill: 'black'
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+};
+    myChart.setOption(option);
+    </script>
+</div>
+<div class="tag_login">
+    <form method="post">
+        {% csrf_token %}
+        <div class="tag_login_head">
+            <br>
+            <label>
+                <input type="text" placeholder="Your Account" name="account" autocomplete="off"
+                       required></label><br><br>
+            <label>
+                <input type="password" placeholder="Your Password" autocomplete="off" name="passwd"
+                       required></label><br><br>
+        </div>
+
+        <div class="tag_login_foot">
+            <label><input type="submit" value="登录"></label>
+            <label><input type="button" value="注册/忘记密码" onclick="tiaozhuan()"></label>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

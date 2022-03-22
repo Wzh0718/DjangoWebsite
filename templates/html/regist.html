@@ -1,0 +1,78 @@
+{#<!DOCTYPE html>#}
+    {% load static %}
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Regist</title>
+    <link rel="shortcut icon" href="{% static  'photo/bitbug_favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'regist.css' %}">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=2.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <script src="{% static 'js/login.js' %}"></script>
+
+</head>
+
+{#author: Wangzehang Liyuanchi Huanyunbo#}
+{#date: 2022-03-19 ~ 2022-03-21#}
+{#info: regist html #}
+<body>
+<div class="tag_regist">
+    <div class="tag_regist_head">
+        <div class="tag_regist_head_back">
+            <label><a href="/login">首页</a></label>
+        </div>
+        <div class="tag_regist_head_change">
+            <label><a href="/recompose">忘记密码</a></label>
+        </div>
+    </div>
+    <div class="tag_regist_foot">
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="tag_regist_foot_head">
+                <div class="tag_regist_foot_left">
+
+                    <label>
+                        <input type="text" placeholder="账号" id="account" name="account" minlength="6" maxlength="10"
+                               oninput="value=value.replace(/[\W]/g,'')" required></label><br><br>
+
+                    <label>
+                        <input type="password" autocomplete="off" id="passwd1" placeholder="设置密码" name="passwd"
+                               minlength="6" onKeyUp=pwStrength(this.value) onBlur=pwStrength(this.value) required>
+                        <table class="passwdtext">
+                            <tr>
+                                <td id="strength_L" style="width: 30px;height: 1px"></td>
+                                <td id="strength_M" style="width: 30px;height: 1px"></td>
+                                <td id="strength_H" style="width: 30px;height: 1px"></td>
+                            </tr>
+                        </table>
+                    </label>
+                    <br><br>
+                </div>
+                <div class="tag_regist_foot_right">
+                    <label>
+                        <input type="text" placeholder="用户码（账号唯一证明）" name="username" minlength="6" maxlength="10"
+                               oninput="value=value.replace(/[^\d]/g,'')" required></label><br><br>
+
+                    <label>
+                        <input type="password" autocomplete="off" id="passwd2" placeholder="检查密码" name="checkpasswd"
+                               minlength="6" onkeyup="validate()" onblur="validate()" required>
+                        <table>
+                            <tr>
+                                <td id="tishi" style="width: 140px;height: 1px;border-radius: 5px 5px 3px 3px"></td>
+                            </tr>
+                        </table>
+                    </label><br><br>
+                </div>
+            </div>
+
+            <div class="tag_regist_foot_foot">
+                <label> <input type="submit" value="注册" id="bottom" class="submit"></label>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

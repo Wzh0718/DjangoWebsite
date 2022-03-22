@@ -1,0 +1,344 @@
+{#<!DOCTYPE html>#}
+    {% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>the model of Shares</title>
+
+    <script src="{% static 'js/echarts.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <link rel="shortcut icon" href="{% static  'photo/bitbug_favicon.ico' %}" type="image/x-icon">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=2.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+
+</head>
+
+{#author: Wangzehang Liyuanchi Huanyunbo#}
+{#date: 2022-03-20#}
+{#info: login html #}
+<script>
+    const mes = function () {
+        swal({title: "联系方式", text: "xxxxxx@163.com", button: false});
+    };
+
+    const info = function () {
+        swal({title: "用户信息", text: "用户号码: {{ user }}", button: false});
+    };
+
+    const msg = function () {
+        swal({
+            title:"预测误差",
+            text:"2.79%",
+            icon: "success",
+            button: false
+        })
+    }
+
+</script>
+<body>
+<div class="head">
+    <div class="head_left">
+        <img src="../../static/photo/IMG_2680.JPG" onclick="info()" title="{{ user }}">
+    </div>
+
+    <div class="head_right">
+        <a onclick="mes()">联系我们</a>
+    </div>
+</div>
+
+<div class="center">
+    <form method="post" >
+        {% csrf_token %}
+        <label><input placeholder="股票号" name="gp" required></label>
+        {% for message in messages %}
+            {% if message.tags %}
+                <a {% if  message == "输入错误！" %}
+                    class="a_if"
+                {% else %}
+                    onclick="msg()"
+                {% endif %} >{{ message }}</a>
+            {% endif %}
+        {% endfor %}
+        <label><input type="submit" value="提交"></label>
+    </form>
+
+</div>
+{#show the table of truth_table#}
+<div id="chart_1" class="show">
+
+    <script type="text/javascript">
+        var myChart = echarts.init(document.getElementById('chart_1'));
+        const upColor = '#ec0000';
+        const upBorderColor = '#8A0000';
+        const downColor = '#00da3c';
+        const downBorderColor = '#008F28';
+        // Each item: open，close，lowest，highest
+        var data =
+        {{ list1|safe }}
+        const data0 = splitData(data);
+
+        function splitData(rawData) {
+            const categoryData = [];
+            const values = [];
+            for (var i = 0; i < rawData.length; i++) {
+                categoryData.push(rawData[i].splice(0, 1)[0]);
+                values.push(rawData[i]);
+            }
+            return {
+                categoryData: categoryData,
+                values: values
+            };
+        }
+
+        function calculateMA(dayCount) {
+            var result = [];
+            for (var i = 0, len = data0.values.length; i < len; i++) {
+                if (i < dayCount) {
+                    result.push('-');
+                    continue;
+                }
+                var sum = 0;
+                for (var j = 0; j < dayCount; j++) {
+                    sum += +data0.values[i - j][1];
+                }
+                result.push(sum / dayCount);
+            }
+            return result;
+        }
+
+        option = {
+            title: {
+                text: '上证指数',
+                left: 0
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['日K', 'MA5', 'MA10', 'MA20', 'MA30']
+            },
+            grid: {
+                left: '10%',
+                right: '10%',
+                bottom: '15%'
+            },
+            xAxis: {
+                type: 'category',
+                data: data0.categoryData,
+                boundaryGap: false,
+                axisLine: {onZero: false},
+                splitLine: {show: false},
+                min: 'dataMin',
+                max: 'dataMax'
+            },
+            yAxis: {
+                scale: true,
+                splitArea: {
+                    show: true
+                }
+            },
+            dataZoom: [
+                {
+                    type: 'inside',
+                    start: 50,
+                    end: 100
+                },
+                {
+                    show: true,
+                    type: 'slider',
+                    top: '90%',
+                    start: 50,
+                    end: 100
+                }
+            ],
+            series: [
+                {
+                    name: '日K',
+                    type: 'candlestick',
+                    data: data0.values,
+                    itemStyle: {
+                        color: upColor,
+                        color0: downColor,
+                        borderColor: upBorderColor,
+                        borderColor0: downBorderColor
+                    },
+                    markPoint: {
+                        label: {
+                            formatter: function (param) {
+                                return param != null ? Math.round(param.value) + '' : '';
+                            }
+                        },
+                        data: [
+                            {
+                                name: 'Mark',
+                                coord: ['2013/5/31', 2300],
+                                value: 2300,
+                                itemStyle: {
+                                    color: 'rgb(41,60,85)'
+                                }
+                            },
+                            {
+                                name: 'highest value',
+                                type: 'max',
+                                valueDim: 'highest'
+                            },
+                            {
+                                name: 'lowest value',
+                                type: 'min',
+                                valueDim: 'lowest'
+                            },
+                            {
+                                name: 'average value on close',
+                                type: 'average',
+                                valueDim: 'close'
+                            }
+                        ],
+                        tooltip: {
+                            formatter: function (param) {
+                                return param.name + '<br>' + (param.data.coord || '');
+                            }
+                        }
+                    },
+                    markLine: {
+                        symbol: ['none', 'none'],
+                        data: [
+                            [
+                                {
+                                    name: 'from lowest to highest',
+                                    type: 'min',
+                                    valueDim: 'lowest',
+                                    symbol: 'circle',
+                                    symbolSize: 10,
+                                    label: {
+                                        show: false
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: false
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'max',
+                                    valueDim: 'highest',
+                                    symbol: 'circle',
+                                    symbolSize: 10,
+                                    label: {
+                                        show: false
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: false
+                                        }
+                                    }
+                                }
+                            ],
+                            {
+                                name: 'min line on close',
+                                type: 'min',
+                                valueDim: 'close'
+                            },
+                            {
+                                name: 'max line on close',
+                                type: 'max',
+                                valueDim: 'close'
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'MA5',
+                    type: 'line',
+                    data: calculateMA(5),
+                    smooth: true,
+                    lineStyle: {
+                        opacity: 0.5
+                    }
+                },
+                {
+                    name: 'MA10',
+                    type: 'line',
+                    data: calculateMA(10),
+                    smooth: true,
+                    lineStyle: {
+                        opacity: 0.5
+                    }
+                },
+                {
+                    name: 'MA20',
+                    type: 'line',
+                    data: calculateMA(20),
+                    smooth: true,
+                    lineStyle: {
+                        opacity: 0.5
+                    }
+                },
+                {
+                    name: 'MA30',
+                    type: 'line',
+                    data: calculateMA(30),
+                    smooth: true,
+                    lineStyle: {
+                        opacity: 0.5
+                    }
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    </script>
+</div>
+<div>
+    <div class="show1" id="chart_2"  >
+<script type="text/javascript">
+    const myChart1 = echarts.init(document.getElementById('chart_2'));
+option = {
+  title: {
+    text: '模型拟合度示意图'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: ['真实值', '预测值']
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    boundaryGap: false,
+    data: {{ year|safe  }}
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      name: '真实值',
+      type: 'line',
+      data: {{y|safe }}
+    },
+    {
+      name: '预测值',
+      type: 'line',
+      data: {{ y_pre|safe  }}
+    }
+  ]
+};
+  myChart1.setOption(option);
+</script>
+</div>
+
+</div>
+
+
+</body>
+</html>
